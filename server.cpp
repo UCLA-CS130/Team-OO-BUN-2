@@ -25,25 +25,25 @@ namespace server {
       for (const auto& statement : config.statements_) {
         for (unsigned int i = 0; i < statement->tokens_.size(); ++i) {
 
-          if (statement->tokens_[i] == "port")
+          if (statement->tokens_.size() == 2 && statement->tokens_[i] == "port")
             portNum_ = statement->tokens_[i+1];
 
-          else if (statement->tokens_[i]=="path" && statement->tokens_[i+1]=="/echo"){
+          else if (statement->tokens_.size() == 3 && statement->tokens_[i]=="path" && statement->tokens_[i+2]=="EchoHandler"){
             std::string echo_handler = statement->tokens_[i+2];
             NginxConfig echo_config;
-            path_info["/echo"] = std::make_pair(echo_handler, echo_config);
+            path_info[statement->tokens_[i+1]] = std::make_pair(echo_handler, echo_config);
             ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
           }
 
-          else if (statement->tokens_[i]=="path" && statement->tokens_[i+1]=="/status"){
+          else if (statement->tokens_.size() == 3 && statement->tokens_[i]=="path" && statement->tokens_[i+2]=="StatusHandler"){
             std::string status_handler = statement->tokens_[i+2];
             NginxConfig status_config;
-            path_info["/status"] = std::make_pair(status_handler, status_config);
+            path_info[statement->tokens_[i+1]] = std::make_pair(status_handler, status_config);
             ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
 
           }
 
-          else if (statement->tokens_[i]=="path"){
+          else if (statement->tokens_.size() == 3 && statement->tokens_[i]=="path" && statement->tokens_[i+2]=="StaticHandler"){
 
             std::string path = statement->tokens_[i+1];
             std::string static_handler = statement->tokens_[i+2];
@@ -53,9 +53,9 @@ namespace server {
             ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
           }
 
-          else if (statement->tokens_[i]=="default"){ 
+          else if (statement->tokens_.size() == 2 && statement->tokens_[i]=="default"){ 
               NginxConfig default_config;
-              path_info["default"]= std::make_pair(statement->tokens_[i+1], default_config);
+              path_info[statement->tokens_[i]]= std::make_pair(statement->tokens_[i+1], default_config);
               ServerMonitor::getInstance()->addHandler(statement->tokens_[i+1], ""); 
           }
 
