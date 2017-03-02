@@ -2,7 +2,7 @@
 port 2020;
 
 path /static StaticHandler {
-  root ./public;
+  root static;
 }
 
 path /echo EchoHandler {}
