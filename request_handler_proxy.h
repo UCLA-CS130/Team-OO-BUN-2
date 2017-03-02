@@ -20,6 +20,10 @@ namespace http {
 
 			// port num as a string
 			std::string port;
+
+			// makes request to given host and returns raw response
+			// handles 302 error
+			std::string make_request(std::string url);
 		};
 
 		REGISTER_REQUEST_HANDLER(ProxyHandler);

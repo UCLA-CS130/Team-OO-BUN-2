@@ -19,17 +19,25 @@ namespace server {
 		return RequestHandler::Status::OK;
 	}
 
-
 	RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Response* response) {
 	  	std::cout << "ProxyHandler::HandleRequest called" << std::endl;
-	  	std::cout << "Making request to: http://www." << host << ":" << port << std::endl;
+	  	bool is_success = make_request("http://www." + host + ":" + port, response)
 
-	  	response->SetStatus(Response::ResponseCode::OK);
-	  	response->AddHeader("Content-Type", "text/plain");
-	  	response->AddHeader("Content-Length", std::to_string(request.raw_request().length()));
-	  	response->SetBody(request.raw_request());
+	  	if (!is_success) {
+	  		std::string fail_body = "Request to remote server failed"
+	  		response->SetStatus(Response::ResponseCode::NOT_FOUND);
+		  	response->AddHeader("Content-Type", "text/plain");
+		  	response->AddHeader("Content-Length", std::to_string(fail_body.length()));
+		  	response->SetBody(fail_body);
+	  	}
 
 		return RequestHandler::Status::OK;
+	}
+
+	bool make_request(std::string url, Response* response) {
+		std::cout << "Making request to: " << url << std::endl;
+
+		// TODO
 	}
 
 } // namespace server
