@@ -1,4 +1,5 @@
 #include "request_handler_echo.h"
+#include <unistd.h>
 
 namespace http {
 namespace server {
@@ -16,8 +17,7 @@ namespace server {
 	  	response->AddHeader("Content-Type", "text/plain");
 	  	response->AddHeader("Content-Length", std::to_string(request.raw_request().length()));
 	  	response->SetBody(request.raw_request());
-	  	
-	return RequestHandler::Status::OK;
+		return RequestHandler::Status::OK;
 	}
 	
 } // namespace server

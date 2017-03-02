@@ -1,6 +1,9 @@
-# This is a comment.
+# This is a comment
+port 2020;
 
-port 2020;  # This is also a comment.
+path /static StaticHandler {
+  root static;
+}
 
 path /ss StaticHandler {
   root static;
@@ -8,8 +11,7 @@ path /ss StaticHandler {
 
 path /echo EchoHandler {}
 
+path /status StatusHandler {}
+
 # Default response handler if no handlers match.
 default NotFoundHandler {}
-
-# Status handler
-path /status StatusHandler {}
