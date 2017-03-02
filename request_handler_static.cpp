@@ -45,8 +45,13 @@ namespace http {
           return RequestHandler::Status::BAD_REQUEST;
         }
 
+        // Static requests should be formattted /static/, with the second "/"
+        std::size_t second_slash = request_path.find("/", 1);
+        if (second_slash != std::string::npos)
+          request_path = request_path.substr(second_slash);
+
         // Direct to default page
-        if (request_path[request_path.size() - 1] == '/')
+        if (request_path.size() == 1 && request_path[request_path.size() - 1] == '/')
         {
           request_path += "index.html";
         }

@@ -25,12 +25,13 @@ Run the server
 ```
 Our default `<config>` file is called `config`
 
-Open browser (Chrome, Firefox, etc.) and go to `localhost:<port>`. ss
+Open browser (Chrome, Firefox, etc.) and go to `localhost:<port>`.
 
 ## Run Unit Tests
 ```
 make test
 ```
+At the end of `make test`, the coverage of the files are presented.
 
 ## Integration Test
 ```
@@ -38,6 +39,29 @@ make test
 ```
 
 ## Test Coverage
-```
-./coverage_test.sh
-```
+`make test` will provide the test coverage information
+
+
+# Code Layout
+* main.cpp: Takes in a configuration file and creates and passes the file to the server
+* server.cpp: Maps the config file paths to handlers. 
+ * The request handlers are initialized here. 
+ * The handlers are passed into a connection that is created (by calling connection::start()). 
+* connection.cpp: This is where most of the work is done by the server.
+ * The request handlers are taken in from the server and saved into a private member.
+ * Request data is read into a buffer and turned into a string in connection::do_read().
+ * connection::call_parser is called and parses the request using the Request::Parse(...) function.
+ * After parsing the request, the uri of the request is used to find the longest matching prefix using the connection::find_handler method which returns the corresponding request handler in the map.
+ * connection::call_handler(...) sends the request to the handler and obtains the response.
+ * connection::write_response() writes the response back to the user
+* request_handler.h: Holds the implementation of the RequestHandler, Request, and Response classes.
+ * request.cpp and response.cpp contains the implementation of the two classes.
+ * request_handler.cpp contains the implementation of the RequestHandler class.
+* request_handler_xxxxx.cpp: The implementation of our different request handlers:
+ * Echo
+ * Default (Not found)
+ * Static
+ * Status
+
+## Folders
+* `static`, `static1`, and `static2` contain the files that can be obtained by issuing a static request
