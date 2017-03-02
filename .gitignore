@@ -5,3 +5,4 @@ gcov_test
 test_config
 webserver
 mytest
+thread_config

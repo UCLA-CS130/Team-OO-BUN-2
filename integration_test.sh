@@ -1,6 +1,5 @@
 #!/bin/bash
 
-make 
 
 port=2020
 
@@ -25,8 +24,8 @@ diff -y testdata/expected /tmp/actual
 
 
 if [ $? == 0 ]; then
-	echo "Expected Response :) Success with exit code $?"
+	echo "Expected Response Success with exit code $?"
 else
-	echo "Unexpected Response :( Fail with exit code $?"
+	echo "Unexpected Response Fail with exit code $?"
 fi
 

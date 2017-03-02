@@ -10,6 +10,11 @@
 #include "request_handler_static.h"
 #include "request_handler_status.h"
 
+#include <thread>
+#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+
+unsigned int MAX_NUM_THREADS = 32;
 
 namespace http {
 namespace server {
@@ -120,8 +125,16 @@ namespace server {
 
     void server::run()
     {
-      isRunning = true;
-      io_service_.run();
+
+      boost::thread threads[MAX_NUM_THREADS];
+
+      for (std::size_t i = 0; i < MAX_NUM_THREADS; ++i){
+        threads[i] = boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
+      }
+
+      for (std::size_t i = 0; i < MAX_NUM_THREADS; ++i){
+        threads[i].join();
+      }
     }
 
     bool server::getStatus()

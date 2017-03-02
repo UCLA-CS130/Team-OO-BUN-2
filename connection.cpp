@@ -89,18 +89,22 @@ RequestHandler::Status connection::call_handler(RequestHandler* handler_mode)
   RequestHandler::Status status;
 
   // Check if the parser returned null
-  if (handler_mode != nullptr) {
+  if (handler_mode == nullptr) {
+    handlers_["default"]->HandleRequest(req, &res);
+
+  }
+  else {
     // Check if the request handler returned not found
     status = handler_mode->HandleRequest(req, &res);
     if (status == RequestHandler::Status::NOT_FOUND){
       // Call the default/not found handler
       handlers_["default"]->HandleRequest(req, &res);
     }
-
+  } 
     ServerMonitor::getInstance()->addRequest(req.uri(), res.GetStatus());
     // Write back to the client
     write_response();
-  }
+
   // Return the request
   return status;
 }

@@ -1,8 +1,7 @@
-# This is a comment.
+# This is a comment
+port 2020;
 
-port 2020;  # This is also a comment.
-
-path /ss StaticHandler {
+path /static StaticHandler {
   root static;
 }
 
@@ -13,8 +12,7 @@ path /proxy ProxyHandler {
 	port 80;
 }
 
+path /status StatusHandler {}
+
 # Default response handler if no handlers match.
 default NotFoundHandler {}
-
-# Status handler
-path /status StatusHandler {}
