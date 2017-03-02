@@ -8,7 +8,10 @@ path /ss StaticHandler {
 
 path /echo EchoHandler {}
 
-path /proxy ProxyHandler {}
+path /proxy ProxyHandler {
+	host google.com;
+	port 80;
+}
 
 # Default response handler if no handlers match.
 default NotFoundHandler {}
