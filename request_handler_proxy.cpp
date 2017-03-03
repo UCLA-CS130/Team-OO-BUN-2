@@ -6,7 +6,7 @@ namespace server {
 
 	RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config) {
 		for (auto it = config.statements_.begin(); it != config.statements_.end(); it++) {
-
+			port = "80"; //add default port
 			// if current statement has two tokens
 			if ((*it)->tokens_.size() == 2) {
 				if ((*it)->tokens_[0] == "port") {
@@ -24,7 +24,7 @@ namespace server {
 
 	RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Response* response) {
 	  	std::cout << "ProxyHandler::HandleRequest called" << std::endl;
-	  	bool is_success = make_request(host, port, path, response);
+	  	bool is_success = make_request(host, port, path, false, response);
 
 	  	if (!is_success) {
 	  		std::string fail_body = "Request to remote server failed";
@@ -37,13 +37,14 @@ namespace server {
 		return RequestHandler::Status::OK;
 	}
 
-	bool ProxyHandler::make_request(std::string host, std::string port, std::string path, Response* res) {
+	bool ProxyHandler::make_request(std::string host, std::string port, std::string path, bool redirect, Response* res) {
 		std::cout << "Making request to: www." << host << ":" << port << path << std::endl;
 
 		using boost::asio::ip::tcp;
 		boost::asio::io_service io_service;
 
 	    // Get a list of endpoints corresponding to the server name.
+	    // TODO: FIX THIS ON REDIRECT
 	    tcp::resolver resolver(io_service);
 	    tcp::resolver::query query(host, "http");
 	    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
@@ -55,10 +56,14 @@ namespace server {
 	    // Form the request. We specify the "Connection: close" header so that the
 	    // server will close the socket after transmitting the response. This will
 	    // allow us to treat all data up until the EOF as the content.
+	    std::cout << "constructing request" << std::endl;
 	    boost::asio::streambuf request;
 	    std::ostream request_stream(&request);
 	    request_stream << "GET " << path << " HTTP/1.0\r\n";
-	    request_stream << "Host: www." << host << ":" << port << "\r\n";
+	    if (!redirect)
+	    	request_stream << "Host: www." << host << ":" << port << "\r\n";
+	    else
+	    	request_stream << "Host: " << host << "\r\n";
 	    request_stream << "Accept: */*\r\n";
 	    request_stream << "Connection: close\r\n\r\n";
 
@@ -73,11 +78,11 @@ namespace server {
 	    // Read the response status line. The response streambuf will automatically
 	    // grow to accommodate the entire line. The growth may be limited by passing
 	    // a maximum size to the streambuf constructor.
-	    boost::asio::streambuf response;
-	    boost::asio::read_until(socket, response, "\r\n");
+	    boost::asio::streambuf response_buffer;
+	    boost::asio::read_until(socket, response_buffer, "\r\n");
 
 	    // Check that response is OK.
-	    std::istream response_stream(&response);
+	    std::istream response_stream(&response_buffer);
 
 	    std::string http_version;
 	    response_stream >> http_version;
@@ -99,16 +104,21 @@ namespace server {
 	    	// return make_request(host, port, path, res)
 	    	// where host, port, and path are set from the redirect
 	    	// Note: there is a response parser obj as member variable of ProxyHandler to get location header
-	    	std::cout << "TODO Redirect:" << std::endl;
+	    	std::cout << "REDIRECT" << std::endl;
+	    	boost::asio::read_until(socket, response_buffer, "\r\n\r\n");
+	    	std::string response_string( (std::istreambuf_iterator<char>(&response_buffer)), std::istreambuf_iterator<char>() );
+	    	resp_parser.parse_response(response_string);
+	    	std::string new_loc = resp_parser.get_redirect_url();
+	    	return make_request(new_loc, port, path, true, res);
 	    }
-	    if (status_code != 200)
+	    else if (status_code != 200)
 	    {
 	      std::cout << "Response returned with status code " << status_code << "\n";
 	      return false;
 	    }
 
 	    // Read the response headers, which are terminated by a blank line.
-	    boost::asio::read_until(socket, response, "\r\n\r\n");
+	    boost::asio::read_until(socket, response_buffer, "\r\n\r\n");
 
 	    // Process the response headers.
 	    std::string header;
@@ -117,14 +127,14 @@ namespace server {
 	    std::cout << "\n";
 
 	    // Write whatever content we already have to output.
-	    if (response.size() > 0)
-	      std::cout << &response;
+	    if (response_buffer.size() > 0)
+	      std::cout << &response_buffer;
 
 	    // Read until EOF, writing data to output as we go.
 	    boost::system::error_code error;
-	    while (boost::asio::read(socket, response,
+	    while (boost::asio::read(socket, response_buffer,
 	          boost::asio::transfer_at_least(1), error))
-	      std::cout << &response;
+	      std::cout << &response_buffer;
 	    if (error != boost::asio::error::eof)
 	      throw boost::system::system_error(error);
 
