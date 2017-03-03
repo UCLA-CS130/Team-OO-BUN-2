@@ -4,6 +4,7 @@
 #include "request_handler.h"
 #include "response_parser.h"
 #include <iostream>
+#include <boost/asio.hpp>
 
 namespace http {
 	namespace server {
@@ -21,9 +22,12 @@ namespace http {
 			// port num as a string
 			std::string port;
 
+			// path to server
+			std::string path;
+
 			// makes request to given host and returns raw response
 			// handles 302 error
-			std::string make_request(std::string url);
+			bool make_request(std::string host, std::string port, std::string path, Response* res);
 		};
 
 		REGISTER_REQUEST_HANDLER(ProxyHandler);

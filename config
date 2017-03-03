@@ -9,6 +9,7 @@ path /echo EchoHandler {}
 
 path /proxy ProxyHandler {
 	host google.com;
+	path /;
 	port 80;
 }
 
