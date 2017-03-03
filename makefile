@@ -29,7 +29,7 @@ test: ngnix/config_parser.cc server_monitor.cpp \
 	request_handler_static.cpp request_handler_static_test.cpp \
 	request_handler_default.cpp request_handler_default_test.cpp \
 	request_handler_status.cpp request_handler_status_test.cpp \
-	request_handler_proxy.cpp request_handler_proxy_test.cpp \
+	request_handler_proxy.cpp request_handler_proxy_test.cpp response_parser.cpp \
 	server.cpp server_test.cpp connection.cpp connection_test.cpp \
 	-isystem ${GTEST_DIR}/include -I${GTEST_DIR} ${GTEST_DIR}/src/gtest-all.cc ${GTEST_DIR}/src/gtest_main.cc \
 	-isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} ${GMOCK_DIR}/src/gmock-all.cc \
