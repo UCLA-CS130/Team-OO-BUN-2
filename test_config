@@ -1,22 +1,7 @@
 port 2020;
 
-path /static StaticHandler {
+path / StaticHandler {
    root static;
 }
 path /echo EchoHandler {}
 default NotFoundHandler {}
-
-path /proxy ProxyHandler{
-	port 80;
-	host ucla.edu;
-}
-
-path /proxy2 ProxyHandler{
-	port 80;
-	host google.com;
-}
-
-path /proxy3 ProxyHandler{
-	port 80;
-	host yahoo.com;
-}

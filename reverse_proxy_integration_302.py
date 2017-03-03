@@ -22,7 +22,7 @@ def client_thread(error_code, REQUEST, E_RESPONSE):
 	data = s.recv(BUFFER_SIZE)
 	s.close()
 
-	if (data != E_RESPONSE):
+	if (E_RESPONSE not in data):
 	    	print "Failure response: ", repr(data)
                 error_code[0] = 1
 		return
@@ -31,27 +31,19 @@ def client_thread(error_code, REQUEST, E_RESPONSE):
 
 if __name__ == "__main__":
 	print "\n-----Opening server-----"
-	p = subprocess.Popen("./webserver ./testdata/test_config_one", shell=True)
-
-	time.sleep(4)
-
-	p2 = subprocess.Popen("./webserver ./testdata/test_config_two", shell=True)
+	p = subprocess.Popen("./webserver ./testdata/test_config_three", shell=True)
 
 	time.sleep(4)
 
 	error_code = [0]
-	REQUEST = "GET /proxy/echo HTTP/1.0\r\n\r\n"
-	EXPECTED_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 80\r\n\r\nGET /echo HTTP/1.0\r\nHost: www.localhost:8000\r\nAccept: */*\r\nConnection: close\r\n\r\n"
+	REQUEST = "GET /proxy/ HTTP/1.0\r\n\r\n"
+	EXPECTED_RESPONSE = "200 OK"
 	thread_client_four = Thread(target = client_thread, args=(error_code, REQUEST, EXPECTED_RESPONSE))
 	thread_client_four.start()
 	thread_client_four.join()
 
 	print "\n\n-----Closing the server/Doing cleanup-----"
 	system("fuser -k 2020/tcp")
-
-	time.sleep(2)
-
-	system("fuser -k 8000/tcp")
 
 	time.sleep(2)
 
