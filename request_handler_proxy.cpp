@@ -1,5 +1,5 @@
 #include "request_handler_proxy.h"
-
+#include <sstream>
 
 namespace http {
 namespace server {
@@ -132,11 +132,23 @@ namespace server {
 
 	    // Read until EOF, writing data to output as we go.
 	    boost::system::error_code error;
-	    while (boost::asio::read(socket, response_buffer,
-	          boost::asio::transfer_at_least(1), error))
-	      std::cout << &response_buffer;
-	    if (error != boost::asio::error::eof)
+	    // temp storage of body
+	    std::stringstream str_stream;
+	    while (boost::asio::read(socket, response_buffer,boost::asio::transfer_at_least(1), error)) {
+	      str_stream << &response_buffer;
+	    }
+
+	    // set up proxy response
+	    // TODO this should be set based on the response from proxy
+	    // switch statement?
+	    res->SetStatus(Response::ResponseCode::OK);
+	    res->AddHeader("Content-Type", "text/html");
+	  	res->AddHeader("Content-Length", std::to_string(str_stream.str().length()));
+	    res->SetBody(str_stream.str());
+
+	    if (error != boost::asio::error::eof) {
 	      throw boost::system::system_error(error);
+	    }
 
 		return true;
 	}
