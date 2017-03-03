@@ -7,16 +7,7 @@ path /echo EchoHandler {}
 default NotFoundHandler {}
 
 path /proxy ProxyHandler{
-	port 80;
-	host ucla.edu;
+	port 8000;
+	host localhost;
 }
 
-path /proxy2 ProxyHandler{
-	port 80;
-	host google.com;
-}
-
-path /proxy3 ProxyHandler{
-	port 80;
-	host yahoo.com;
-}
