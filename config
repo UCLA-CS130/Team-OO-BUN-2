@@ -7,12 +7,6 @@ path /static StaticHandler {
 
 path /echo EchoHandler {}
 
-path /proxy ProxyHandler {
-	host google.com;
-	path /;
-	port 80;
-}
-
 path /status StatusHandler {}
 
 # Default response handler if no handlers match.

@@ -1,10 +1,9 @@
 port 2020;
 
-path / StaticHandler {
+path /static StaticHandler {
    root static;
 }
 path /echo EchoHandler {}
-
 default NotFoundHandler {}
 
 path /proxy ProxyHandler{
