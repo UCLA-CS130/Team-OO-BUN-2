@@ -5,8 +5,8 @@ namespace http {
 namespace server {
 
 	RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config) {
+		port = "80"; //add default port
 		for (auto it = config.statements_.begin(); it != config.statements_.end(); it++) {
-			port = "80"; //add default port
 			// if current statement has two tokens
 			if ((*it)->tokens_.size() == 2) {
 				if ((*it)->tokens_[0] == "port") {
@@ -102,7 +102,6 @@ namespace server {
 
 	    // Handle redirect
 	    if (status_code == 302) {
-	    	// TODO:
 	    	// return make_request(host, port, path, res)
 	    	// where host, port, and path are set from the redirect
 	    	// Note: there is a response parser obj as member variable of ProxyHandler to get location header
@@ -122,16 +121,13 @@ namespace server {
 
 	    // Read the response headers, which are terminated by a blank line.
 	    boost::asio::read_until(socket, response_buffer, "\r\n\r\n");
+	    std::string response_string( (std::istreambuf_iterator<char>(&response_buffer)), std::istreambuf_iterator<char>() );
 
-	    // Process the response headers.
-	    std::string header;
-	    while (std::getline(response_stream, header) && header != "\r")
-	      std::cout << header << "\n";
-	    std::cout << "\n";
-
-	    // Write whatever content we already have to output.
-	    if (response_buffer.size() > 0)
-	      std::cout << &response_buffer;
+	    //get the content type to set the correct field in the response
+	    resp_parser.parse_response(response_string);
+	    std::string content_type = resp_parser.get_content_type();
+	    if (content_type == "")
+	    	content_type = "text/plain";
 
 	    // Read until EOF, writing data to output as we go.
 	    boost::system::error_code error;
@@ -140,14 +136,14 @@ namespace server {
 	    while (boost::asio::read(socket, response_buffer,boost::asio::transfer_at_least(1), error)) {
 	      str_stream << &response_buffer;
 	    }
-
+	    //create a total response of the headers and message body, and isolate the message body
+	    std::string total_response = response_string + str_stream.str();
+	    std::string response_body = total_response.substr(total_response.find("\r\n\r\n")+4);
 	    // set up proxy response
-	    // TODO this should be set based on the response from proxy
-	    // switch statement?
 	    res->SetStatus(Response::ResponseCode::OK);
-	    res->AddHeader("Content-Type", "text/html");
-	  	res->AddHeader("Content-Length", std::to_string(str_stream.str().length()));
-	    res->SetBody(str_stream.str());
+	    res->AddHeader("Content-Type", content_type);
+	  	res->AddHeader("Content-Length", std::to_string(response_body.length()));
+	    res->SetBody(response_body);
 
 	    if (error != boost::asio::error::eof) {
 	      throw boost::system::system_error(error);

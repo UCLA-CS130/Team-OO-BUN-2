@@ -1,0 +1,13 @@
+port 2020;
+
+path /static StaticHandler {
+   root static;
+}
+path /echo EchoHandler {}
+default NotFoundHandler {}
+
+path /proxy ProxyHandler{
+	port 8000;
+	host localhost;
+}
+

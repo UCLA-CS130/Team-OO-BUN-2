@@ -22,6 +22,7 @@ int ResponseParser::parse_response(std::string response){
 		return -1;
 
 	redirect_url = find_header_value("Location: ", response);
+	content_type = find_header_value("Content-Type: ", response);
 
 	return 0;
 
@@ -40,6 +41,11 @@ int ResponseParser::get_content_length()
 std::string ResponseParser::get_redirect_url()
 {
 	return redirect_url;
+}
+
+std::string ResponseParser::get_content_type()
+{
+	return content_type;
 }
 
 bool ResponseParser::is_a_number(const std::string s){
