@@ -13,17 +13,20 @@ namespace server {
 					port = (*it)->tokens_[1];
 				} else if ((*it)->tokens_[0] == "host") {
 					host = (*it)->tokens_[1];
-				} else if ((*it)->tokens_[0] == "path") {
-					path = (*it)->tokens_[1];
 				}
 			}
 		}
-
+		this->uri_prefix = uri_prefix;
 		return RequestHandler::Status::OK;
 	}
 
 	RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Response* response) {
 	  	std::cout << "ProxyHandler::HandleRequest called" << std::endl;
+	  	//get path that the user is requesting from the remote server
+	  	path = request.uri().substr(uri_prefix.length());
+	  	if (path.length() == 0)
+	  		path = "/";
+	  	std::cout << path << std::endl;
 	  	bool is_success = make_request(host, port, path, false, response);
 
 	  	if (!is_success) {
@@ -43,10 +46,10 @@ namespace server {
 		using boost::asio::ip::tcp;
 		boost::asio::io_service io_service;
 
+
 	    // Get a list of endpoints corresponding to the server name.
-	    // TODO: FIX THIS ON REDIRECT
 	    tcp::resolver resolver(io_service);
-	    tcp::resolver::query query(host, "http");
+	    tcp::resolver::query query(host, port);
 	    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
 	    // Try each endpoint until we successfully establish a connection.
@@ -56,7 +59,6 @@ namespace server {
 	    // Form the request. We specify the "Connection: close" header so that the
 	    // server will close the socket after transmitting the response. This will
 	    // allow us to treat all data up until the EOF as the content.
-	    std::cout << "constructing request" << std::endl;
 	    boost::asio::streambuf request;
 	    std::ostream request_stream(&request);
 	    request_stream << "GET " << path << " HTTP/1.0\r\n";
@@ -109,7 +111,8 @@ namespace server {
 	    	std::string response_string( (std::istreambuf_iterator<char>(&response_buffer)), std::istreambuf_iterator<char>() );
 	    	resp_parser.parse_response(response_string);
 	    	std::string new_loc = resp_parser.get_redirect_url();
-	    	return make_request(new_loc, port, path, true, res);
+	    	parse_url(new_loc, host, port, path);
+	    	return make_request(host, port, path, true, res);
 	    }
 	    else if (status_code != 200)
 	    {
@@ -151,6 +154,37 @@ namespace server {
 	    }
 
 		return true;
+	}
+
+	//parse the redirect url so that it can be used for the next request
+	void ProxyHandler::parse_url(std::string url, std::string& host, std::string& port, std::string& path)
+	{
+		if (url.length() == 0)
+			return;
+		
+		if (url.find("https") != std::string::npos){
+			port = "443";
+		}
+		else if(url.find("http") != std::string::npos){
+			port = "80";
+		}
+		else{
+			//in the case that the redirect returns a relative url, instead of an absolute one
+			path = url;
+			return;
+		}
+		//turn http://www.google.com/blah blah blah -> www.google.com
+		host = url.substr(url.find("//")+2);
+		if (host.find("/") != std::string::npos){
+			path = host.substr(host.find("/"));
+			host = host.substr(0, host.find("/"));
+		}
+		else{
+			//no path specified so redirected to just google.com which would be google.com/ for example
+			path = "/";
+		}
+
+		
 	}
 
 } // namespace server

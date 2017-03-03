@@ -25,9 +25,11 @@ namespace http {
 			// path to server
 			std::string path;
 
+			std::string uri_prefix;
 			// makes request to given host and returns raw response
 			// handles 302 error
 			bool make_request(std::string host, std::string port, std::string path, bool redirect, Response* res);
+			void parse_url(std::string url, std::string& host, std::string& port, std::string& path);
 		};
 
 		REGISTER_REQUEST_HANDLER(ProxyHandler);
