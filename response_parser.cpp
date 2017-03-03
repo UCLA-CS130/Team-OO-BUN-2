@@ -11,8 +11,6 @@ int ResponseParser::parse_response(std::string response){
 	std::string r_code = find_response_code(response);
 	if (r_code != "" && is_a_number(r_code))
 		response_code = atoi(r_code.c_str());
-	else
-		return -1;
 
 	//if c_length isnt found, set c_length to equal 0;
 	std::string c_length = find_header_value("Content-Length: ", response);
@@ -29,6 +27,20 @@ int ResponseParser::parse_response(std::string response){
 
 }
 
+int ResponseParser::get_response_code()
+{
+ 	return response_code;
+}
+	
+int ResponseParser::get_content_length()
+{
+	return content_length;
+}
+
+std::string ResponseParser::get_redirect_url()
+{
+	return redirect_url;
+}
 
 bool ResponseParser::is_a_number(const std::string s){
 	if (s == "") return false;
