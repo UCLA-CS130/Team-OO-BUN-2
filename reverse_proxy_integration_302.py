@@ -35,7 +35,6 @@ if __name__ == "__main__":
 
 	time.sleep(4)
 
-	#test functionality of the echo handler
 	error_code = [0]
 	REQUEST = "GET /proxy/ HTTP/1.0\r\n\r\n"
 	EXPECTED_RESPONSE = "200 OK"
