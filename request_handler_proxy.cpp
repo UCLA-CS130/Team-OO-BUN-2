@@ -5,29 +5,30 @@ namespace http {
 namespace server {
 
 	RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config) {
-		port = "80"; //add default port
+		port_ = "80"; //add default port
+
 		for (auto it = config.statements_.begin(); it != config.statements_.end(); it++) {
 			// if current statement has two tokens
 			if ((*it)->tokens_.size() == 2) {
 				if ((*it)->tokens_[0] == "port") {
-					port = (*it)->tokens_[1];
+					this->port_ = (*it)->tokens_[1];
 				} else if ((*it)->tokens_[0] == "host") {
-					host = (*it)->tokens_[1];
+					this->host_ = (*it)->tokens_[1];
 				}
 			}
 		}
-		this->uri_prefix = uri_prefix;
+		this->uri_prefix_ = uri_prefix;
 		return RequestHandler::Status::OK;
 	}
 
 	RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Response* response) {
 	  	std::cout << "ProxyHandler::HandleRequest called" << std::endl;
 	  	//get path that the user is requesting from the remote server
-	  	path = request.uri().substr(uri_prefix.length());
-	  	if (path.length() == 0)
-	  		path = "/";
-	  	std::cout << path << std::endl;
-	  	bool is_success = make_request(host, port, path, false, response);
+	  	path_ = request.uri().substr(uri_prefix_.length());
+	  	if (path_.length() == 0)
+	  		path_ = "/";
+	  	std::cout << path_ << std::endl;
+	  	bool is_success = make_request(host_, port_, path_, false, response);
 
 	  	if (!is_success) {
 	  		std::string fail_body = "Request to remote server failed";
@@ -157,7 +158,7 @@ namespace server {
 	{
 		if (url.length() == 0)
 			return;
-		
+
 		if (url.find("https") != std::string::npos){
 			port = "443";
 		}
@@ -180,7 +181,7 @@ namespace server {
 			path = "/";
 		}
 
-		
+
 	}
 
 } // namespace server

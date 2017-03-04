@@ -17,15 +17,17 @@ namespace http {
 			ResponseParser resp_parser;
 
 			// domain name of host to proxy
-			std::string host;
+			std::string host_;
 
 			// port num as a string
-			std::string port;
+			std::string port_;
 
 			// path to server
-			std::string path;
+			std::string path_;
 
-			std::string uri_prefix;
+			// uri prefix passed in Init
+			std::string uri_prefix_;
+
 			// makes request to given host and returns raw response
 			// handles 302 error
 			bool make_request(std::string host, std::string port, std::string path, bool redirect, Response* res);
