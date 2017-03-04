@@ -55,9 +55,9 @@ namespace server {
 
 		staticHandler->Init("/", child);
 
-		Request request; 
-		Response response; 
-		RequestHandler::Status status = staticHandler->HandleRequest(request, &response); 
+		Request request;
+		Response response;
+		RequestHandler::Status status = staticHandler->HandleRequest(request, &response);
 		EXPECT_EQ(status, RequestHandler::Status::BAD_REQUEST);
 	}
 
@@ -70,16 +70,10 @@ namespace server {
 
 		NginxConfig child;
 	      for (const auto& statement : config.statements_) {
-	        for (unsigned int i = 0; i < statement->tokens_.size(); ++i) {
-	          if (statement->tokens_[i] == "port")
-	            ;
-	          else if (statement->tokens_[i]=="path" && statement->tokens_[i+1]=="/echo")
-	            ;
-	          else if (statement->tokens_[i]=="path" && statement->tokens_[i+1]=="/status")
-	            ;
-	          else if (statement->tokens_[i]=="path")
-	            child = *(statement->child_block_);
-	        }
+	      	if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path"
+	      		&& statement->tokens_[2] == "StaticHandler") {
+	      		child = *(statement->child_block_);
+	      	}
 	      }
 
 		staticHandler->Init("/", child);
@@ -93,9 +87,9 @@ namespace server {
 		"Connection: keep-alive\r\n\r\n";
 
 		std::unique_ptr<Request> request = Request::Parse(raw_request);
-		Request req = *request;  
-		Response response; 
-		RequestHandler::Status status = staticHandler->HandleRequest(req, &response); 
+		Request req = *request;
+		Response response;
+		RequestHandler::Status status = staticHandler->HandleRequest(req, &response);
 		EXPECT_EQ(status, RequestHandler::Status::OK);
 	}
 
@@ -131,9 +125,9 @@ namespace server {
 		"Connection: keep-alive\r\n\r\n";
 
 		std::unique_ptr<Request> request = Request::Parse(raw_request);
-		Request req = *request;  
-		Response response; 
-		RequestHandler::Status status = staticHandler->HandleRequest(req, &response); 
+		Request req = *request;
+		Response response;
+		RequestHandler::Status status = staticHandler->HandleRequest(req, &response);
 		EXPECT_EQ(status, RequestHandler::Status::NOT_FOUND);
 	}
 }
