@@ -69,12 +69,12 @@ namespace server {
 		config_parser.Parse("config", &config);
 
 		NginxConfig child;
-	      for (const auto& statement : config.statements_) {
-	      	if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path"
-	      		&& statement->tokens_[2] == "StaticHandler") {
-	      		child = *(statement->child_block_);
-	      	}
-	      }
+        for (const auto& statement : config.statements_) {
+      	  if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path"
+      		&& statement->tokens_[2] == "StaticHandler") {
+      		child = *(statement->child_block_);
+      	  }
+        }
 
 		staticHandler->Init("/", child);
 
