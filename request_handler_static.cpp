@@ -1,5 +1,5 @@
 #include "request_handler_static.h"
-#include <sstream> 
+#include <sstream>
 #include <fstream>
 
 namespace http {
@@ -9,7 +9,7 @@ namespace http {
 
         mUri_prefix = uri_prefix;
 
-        std::vector<std::shared_ptr<NginxConfigStatement>> statements = 
+        std::vector<std::shared_ptr<NginxConfigStatement>> statements =
                                 config.statements_;
         for (unsigned int j = 0; j < statements.size(); ++j) {
           for (unsigned int k = 0; k < statements[j]->tokens_.size(); ++k) {
@@ -32,7 +32,7 @@ namespace http {
         if (!url_decode(request.uri(), request_path))
         {
           response->SetStatus(Response::ResponseCode::BAD_REQUEST);
-          response->SetBody("Bad Request: Bad url decoding");  
+          response->SetBody("Bad Request: Bad url decoding");
           return RequestHandler::Status::BAD_REQUEST;
         }
 
@@ -41,7 +41,7 @@ namespace http {
             || request_path.find("..") != std::string::npos)
         {
           response->SetStatus(Response::ResponseCode::BAD_REQUEST);
-          response->SetBody("Bad Request: Bad pathing"); 
+          response->SetBody("Bad Request: Bad pathing");
           return RequestHandler::Status::BAD_REQUEST;
         }
 
@@ -66,46 +66,46 @@ namespace http {
         }
 
         // Types of supported file extensions from mime_types
-        std::string extension_type; 
+        std::string extension_type;
         if(extension == "jpg"){
-          extension_type = "image/jpeg"; 
+          extension_type = "image/jpeg";
         }
         else if (extension == "gif"){
           extension_type = "image/gif";
         }
         else if (extension == "htm") {
-          extension_type = "text/html"; 
+          extension_type = "text/html";
         }
         else if (extension == "html") {
-          extension_type = "text/html"; 
+          extension_type = "text/html";
         }
         else if (extension == "png") {
-          extension_type == "image/png"; 
+          extension_type == "image/png";
         }
 
         // Open the file to send back.
         std::string full_path = mRoot + request_path;
 
-        std::cout << "full path = " << full_path << std::endl; 
+        std::cout << "full path = " << full_path << std::endl;
 
         std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
         if (!is)
         {
           response->SetStatus(Response::ResponseCode::NOT_FOUND);
-          response->SetBody("NOT FOUND"); 
+          response->SetBody("NOT FOUND");
           return RequestHandler::Status::NOT_FOUND;
         }
 
-        std::string contents = ""; 
+        std::string contents = "";
         std::stringstream sstr;
         sstr << is.rdbuf();
         contents = sstr.str();
 
-        //Good response, fill out the response 
+        //Good response, fill out the response
         response->SetStatus(Response::ResponseCode::OK);
         response->SetBody(contents);
-        response->AddHeader("Content-Length", std::to_string(contents.length())); 
-        response->AddHeader("Content-Type", extension_type); 
+        response->AddHeader("Content-Length", std::to_string(contents.length()));
+        response->AddHeader("Content-Type", extension_type);
 
         return RequestHandler::Status::OK;
       }

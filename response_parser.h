@@ -18,11 +18,13 @@ public:
 	int get_response_code();
 	int get_content_length();
 	std::string get_redirect_url();
+	std::string get_content_type();
 
 private:
 	int response_code;
 	int content_length;
 	std::string redirect_url;
+	std::string content_type;
 	bool is_a_number(const std::string s);
 	//looks through the first line for the response code
 	std::string find_response_code(std::string response);

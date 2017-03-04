@@ -1,0 +1,9 @@
+port 8000;
+
+path /static StaticHandler {
+   root static;
+}
+
+path /echo EchoHandler {}
+
+default NotFoundHandler {}

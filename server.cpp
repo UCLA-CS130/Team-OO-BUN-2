@@ -37,14 +37,14 @@ namespace server {
             std::string echo_handler = statement->tokens_[i+2];
             NginxConfig echo_config;
             path_info[statement->tokens_[i+1]] = std::make_pair(echo_handler, echo_config);
-            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
+            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]);
           }
 
           else if (statement->tokens_.size() == 3 && statement->tokens_[i]=="path" && statement->tokens_[i+2]=="StatusHandler"){
             std::string status_handler = statement->tokens_[i+2];
             NginxConfig status_config;
             path_info[statement->tokens_[i+1]] = std::make_pair(status_handler, status_config);
-            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
+            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]);
 
           }
 
@@ -55,13 +55,23 @@ namespace server {
 
             NginxConfig child = *(statement->child_block_);
             path_info[path] = std::make_pair(static_handler, child);
-            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]); 
+            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]);
           }
 
-          else if (statement->tokens_.size() == 2 && statement->tokens_[i]=="default"){ 
+          else if (statement->tokens_.size() == 3 && statement->tokens_[i]=="path" && statement->tokens_[i+2]=="ProxyHandler"){
+
+            std::string path = statement->tokens_[i+1];
+            std::string proxy_handler = statement->tokens_[i+2];
+
+            NginxConfig child = *(statement->child_block_);
+            path_info[path] = std::make_pair(proxy_handler, child);
+            ServerMonitor::getInstance()->addHandler(statement->tokens_[i+2], statement->tokens_[i+1]);
+          }
+
+          else if (statement->tokens_.size() == 2 && statement->tokens_[i]=="default"){
               NginxConfig default_config;
               path_info[statement->tokens_[i]]= std::make_pair(statement->tokens_[i+1], default_config);
-              ServerMonitor::getInstance()->addHandler(statement->tokens_[i+1], ""); 
+              ServerMonitor::getInstance()->addHandler(statement->tokens_[i+1], "");
           }
 
         }
@@ -115,25 +125,25 @@ namespace server {
 
     void server::run()
     {
+
       boost::thread threads[MAX_NUM_THREADS];
-  
+
       for (std::size_t i = 0; i < MAX_NUM_THREADS; ++i){
         threads[i] = boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
       }
-  
+
       for (std::size_t i = 0; i < MAX_NUM_THREADS; ++i){
         threads[i].join();
       }
-    
     }
 
-    bool server::getStatus() 
+    bool server::getStatus()
     {
-      return isRunning; 
+      return isRunning;
     }
 
     std::string server::getPortNum(){
-      return portNum_; 
+      return portNum_;
     }
 
     std::string server::getAddress(){
@@ -156,7 +166,7 @@ namespace server {
 
     void server::do_accept()
     {
-      acceptor_.async_accept(socket_, 
+      acceptor_.async_accept(socket_,
         [this](boost::system::error_code ec){
           // error check, if the website name given is not valid then this will return
           if (!acceptor_.is_open()) {
@@ -168,7 +178,7 @@ namespace server {
             // Creates a shared connection ptr and calls start on it
             // std::move gets rid of the copy constructor delete error
             auto my_connection = std::make_shared<connection> (std::move(socket_), handlers);
-            my_connection->start(); 
+            my_connection->start();
           }
 
           do_accept();

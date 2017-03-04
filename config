@@ -5,10 +5,6 @@ path /static StaticHandler {
   root static;
 }
 
-path /ss StaticHandler {
-  root static;
-}
-
 path /echo EchoHandler {}
 
 path /status StatusHandler {}
