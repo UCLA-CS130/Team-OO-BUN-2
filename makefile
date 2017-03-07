@@ -50,7 +50,7 @@ integration: integration_test.sh thread_test.py reverse_proxy_integration_302.py
 	python reverse_proxy_integration.py
 	python reverse_proxy_integration_302.py
 
-deploy: webserver
+deploy:
 	rm -rf deploy
 	docker build -t httpserver.build .
 	docker run httpserver.build > binary.tar
@@ -68,4 +68,4 @@ aws:
 	./aws.sh
 
 clean:
-	rm -rf *.o webserver
+	rm -rf *.o webserver deploy/
