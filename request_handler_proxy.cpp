@@ -56,7 +56,9 @@ namespace server {
 	    // Try each endpoint until we successfully establish a connection.
 	    tcp::socket socket(io_service);
 	    boost::asio::connect(socket, endpoint_iterator);
-
+	    
+	    path = "/" + path;
+	    
 	    // Form the request. We specify the "Connection: close" header so that the
 	    // server will close the socket after transmitting the response. This will
 	    // allow us to treat all data up until the EOF as the content.
