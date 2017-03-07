@@ -7,8 +7,7 @@ echo_server: main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp req
 	request_handler_default.cpp request_handler_status.cpp server.cpp connection.cpp
 	g++ main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
 	request_handler_default.cpp request_handler_status.cpp request_handler_proxy.cpp server.cpp connection.cpp response_parser.cpp \
-	-std=c++0x -g -Wall -lboost_regex -lboost_system -lboost_thread -lpthread -o webserver
-
+	-std=c++0x -g -Wall -static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_log -lboost_thread -lboost_system -o webserver
 
 test: ngnix/config_parser.cc server_monitor.cpp \
 	response.cpp response_test.cpp \
@@ -50,6 +49,23 @@ integration: integration_test.sh thread_test.py reverse_proxy_integration_302.py
 	python thread_test.py
 	python reverse_proxy_integration.py
 	python reverse_proxy_integration_302.py
+
+deploy: webserver
+	rm -rf deploy
+	docker build -t httpserver.build .
+	docker run httpserver.build > binary.tar
+	mkdir deploy
+	cp config deploy/
+	cp -r static/ deploy/
+	cp binary.tar deploy/
+	cp Dockerfile.run deploy/Dockerfile
+	cd deploy && tar -xvf binary.tar
+	rm binary.tar
+	cd ..
+	docker build -t httpserver deploy
+
+aws:
+	./aws.sh
 
 clean:
 	rm -rf *.o webserver

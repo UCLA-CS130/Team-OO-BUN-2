@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   NginxConfig config;
   config_parser.Parse(argv[1], &config);
 
-  http::server::server s("localhost", config);
+  http::server::server s("0.0.0.0", config);
   s.run();
   return 0;
 }
