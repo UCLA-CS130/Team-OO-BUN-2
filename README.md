@@ -66,12 +66,12 @@ At the end of `make test`, the coverage of the files are presented.
 ## Folders
 * `static`, `static1`, and `static2` contain the files that can be obtained by issuing a static request
 
-## Docker
-# Deploy our server
+# Docker
+## Deploy our server
 ```
 make deloy
 ```
-# Push onto AWS
+## Push onto AWS
 ```
 make aws
 ```
