@@ -1,13 +1,68 @@
 GTEST_DIR=ngnix/googletest/googletest
 GMOCK_DIR=ngnix/googletest/googlemock
 
+LDFLAGS=-static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_thread -lboost_system
+CXXFLAGS=-std=c++0x -Wall -Werror
+
 all: echo_server
 
-echo_server: main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp markdown.cpp markdown-tokens.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
-	request_handler_default.cpp request_handler_status.cpp server.cpp connection.cpp
-	g++ main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp markdown.cpp markdown-tokens.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
-	request_handler_default.cpp request_handler_status.cpp request_handler_proxy.cpp server.cpp connection.cpp response_parser.cpp \
-	-std=c++0x -g -Wall -static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_thread -lboost_system -o webserver
+echo_server: server.o connection.o server_monitor.o response.o request.o \
+	markdown.o markdown-tokens.o request_handler.o response_parser.o \
+	request_handler_echo.o request_handler_static.o request_handler_default.o request_handler_status.o request_handler_proxy.o \
+	main.o config_parser.o
+	g++ -o webserver config_parser.o server.o connection.o main.o \
+	server_monitor.o response.o request.o response_parser.o markdown.o markdown-tokens.o \
+	request_handler.o request_handler_echo.o request_handler_static.o request_handler_default.o request_handler_status.o request_handler_proxy.o \
+	$(CXXFLAGS) $(LDFLAGS)
+
+server.o: server.cpp server.h
+	g++ -c server.cpp $(CXXFLAGS) $(LDFLAGS)
+
+connection.o: connection.cpp connection.h
+	g++ -c connection.cpp $(CXXFLAGS) $(LDFLAGS)
+
+server_monitor.o: server_monitor.cpp server_monitor.h
+	g++ -c server_monitor.cpp $(CXXFLAGS) $(LDFLAGS)
+
+response.o: response.cpp request_handler.h
+	g++ -c response.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request.o: request.cpp request_handler.h
+	g++ -c request.cpp $(CXXFLAGS) $(LDFLAGS)
+
+markdown.o: markdown.cpp markdown.h
+	g++ -c markdown.cpp $(CXXFLAGS) $(LDFLAGS)
+
+markdown-tokens.o: markdown-tokens.cpp markdown-tokens.h
+	g++ -c markdown-tokens.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler.o: request_handler.cpp request_handler.h
+	g++ -c request_handler.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler_echo.o: request_handler_echo.cpp request_handler.h
+	g++ -c request_handler_echo.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler_static.o: request_handler_static.cpp request_handler.h
+	g++ -c request_handler_static.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler_default.o: request_handler_default.cpp request_handler.h
+	g++ -c request_handler_default.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler_status.o: request_handler_status.cpp request_handler.h
+	g++ -c request_handler_status.cpp $(CXXFLAGS) $(LDFLAGS)
+
+request_handler_proxy.o: request_handler_proxy.cpp request_handler.h
+	g++ -c request_handler_proxy.cpp $(CXXFLAGS) $(LDFLAGS)
+
+response_parser.o: response_parser.cpp response_parser.h
+	g++ -c response_parser.cpp $(CXXFLAGS) $(LDFLAGS)
+
+main.o: main.cpp ngnix/config_parser.cc
+	g++ -c main.cpp $(CXXFLAGS) $(LDFLAGS)
+
+config_parser.o: ngnix/config_parser.cc
+	g++ -c ngnix/config_parser.cc $(CXXFLAGS) $(LDFLAGS)
+
 
 test: ngnix/config_parser.cc server_monitor.cpp \
 	response.cpp response_test.cpp \
