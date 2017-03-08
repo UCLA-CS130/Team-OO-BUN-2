@@ -1,6 +1,8 @@
+#GTEST
 GTEST_DIR=ngnix/googletest/googletest
 GMOCK_DIR=ngnix/googletest/googlemock
 
+#FLAGS
 LDFLAGS=-static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_thread -lboost_system
 CXXFLAGS=-std=c++0x -Wall -Werror
 
@@ -72,10 +74,11 @@ test: ngnix/config_parser.cc server_monitor.cpp \
 	request_handler_static.cpp request_handler_static_test.cpp \
 	request_handler_default.cpp request_handler_default_test.cpp \
 	request_handler_status.cpp request_handler_status_test.cpp \
+	request_handler_proxy.cpp request_handler_proxy_test.cpp \
 	server.cpp server_test.cpp \
 	connection.cpp connection_test.cpp \
 	${GTEST_DIR}/src/gtest-all.cc ${GTEST_DIR}/src/gtest_main.cc ${GMOCK_DIR}/src/gmock-all.cc
-	g++ ngnix/config_parser.cc server_monitor.cpp \
+	g++ ngnix/config_parser.cc server_monitor.cpp markdown.cpp markdown-tokens.cpp \
 	response.cpp response_test.cpp \
 	request.cpp request_test.cpp \
 	request_handler.cpp \
@@ -123,4 +126,4 @@ aws:
 	./aws.sh
 
 clean:
-	rm -rf *.o webserver deploy/
+	rm -rf *.o *.gcov *.gcda *.gcno webserver deploy/
