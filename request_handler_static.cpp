@@ -108,10 +108,14 @@ namespace http {
         if (extension == "md"){
           extension_type = "text/html";
 
+          // Create markdown object
           markdown::Document doc;
+          // Read the content of the .md file into the markdown document object
           doc.read(contents);
           
+          // The markdown::write function takes in an ostream
           std::ostringstream os;
+          // Write the translated html file and out to content string 
           doc.write(os);
           contents = os.str();
         }
