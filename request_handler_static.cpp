@@ -1,6 +1,8 @@
 #include "request_handler_static.h"
 #include <sstream>
 #include <fstream>
+#include "markdown.h"
+#include <boost/regex.hpp>
 
 namespace http {
   namespace server {
@@ -67,7 +69,7 @@ namespace http {
 
         // Types of supported file extensions from mime_types
         std::string extension_type;
-        if(extension == "jpg"){
+        if (extension == "jpg"){
           extension_type = "image/jpeg";
         }
         else if (extension == "gif"){
@@ -80,7 +82,7 @@ namespace http {
           extension_type = "text/html";
         }
         else if (extension == "png") {
-          extension_type == "image/png";
+          extension_type = "image/png";
         }
 
         // Open the file to send back.
@@ -100,6 +102,19 @@ namespace http {
         std::stringstream sstr;
         sstr << is.rdbuf();
         contents = sstr.str();
+
+        // Check for .md extension in uri
+        // This signifies a markdown file, thus we should transparently convert it into html
+        if (extension == "md"){
+          extension_type = "text/html";
+
+          markdown::Document doc;
+          doc.read(contents);
+          
+          std::ostringstream os;
+          doc.write(os);
+          contents = os.str();
+        }
 
         //Good response, fill out the response
         response->SetStatus(Response::ResponseCode::OK);

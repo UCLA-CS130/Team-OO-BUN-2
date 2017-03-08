@@ -3,11 +3,11 @@ GMOCK_DIR=ngnix/googletest/googlemock
 
 all: echo_server
 
-echo_server: main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
+echo_server: main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp markdown.cpp markdown-tokens.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
 	request_handler_default.cpp request_handler_status.cpp server.cpp connection.cpp
-	g++ main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
+	g++ main.cpp ngnix/config_parser.cc server_monitor.cpp response.cpp request.cpp markdown.cpp markdown-tokens.cpp request_handler.cpp request_handler_echo.cpp request_handler_static.cpp \
 	request_handler_default.cpp request_handler_status.cpp request_handler_proxy.cpp server.cpp connection.cpp response_parser.cpp \
-	-std=c++0x -g -Wall -static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_log -lboost_thread -lboost_system -o webserver
+	-std=c++0x -g -Wall -static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_thread -lboost_system -o webserver
 
 test: ngnix/config_parser.cc server_monitor.cpp \
 	response.cpp response_test.cpp \
