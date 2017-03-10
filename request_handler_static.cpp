@@ -3,6 +3,9 @@
 #include <fstream>
 #include "markdown.h"
 #include <boost/regex.hpp>
+#include <boost/iostreams/copy.hpp> 
+#include <boost/iostreams/filter/gzip.hpp> 
+#include <boost/iostreams/filtering_streambuf.hpp> 
 
 namespace http {
   namespace server {
@@ -10,6 +13,7 @@ namespace http {
     RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config) {
 
         mUri_prefix = uri_prefix;
+        mHandlerName = "Static";
 
         std::vector<std::shared_ptr<NginxConfigStatement>> statements =
                                 config.statements_;
@@ -120,11 +124,15 @@ namespace http {
           contents = os.str();
         }
 
+        // Compress the output
+        std::string compressed_output = compress(contents);
+
         //Good response, fill out the response
         response->SetStatus(Response::ResponseCode::OK);
-        response->SetBody(contents);
-        response->AddHeader("Content-Length", std::to_string(contents.length()));
+        response->SetBody(compressed_output);
+        response->AddHeader("Content-Length", std::to_string(compressed_output.length()));
         response->AddHeader("Content-Type", extension_type);
+        response->AddHeader("Content-Encoding", "gzip");  // Set compression header
 
         return RequestHandler::Status::OK;
       }
@@ -166,6 +174,19 @@ namespace http {
         }
       }
       return true;
+    }
+
+    // Compresses the static output and returns that instead
+    std::string StaticHandler::compress(std::string& data)
+    {
+        std::stringstream compressed;
+        std::stringstream decompressed;
+        decompressed << data;
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+        out.push(boost::iostreams::gzip_compressor());
+        out.push(decompressed);
+        boost::iostreams::copy(out, compressed);
+        return compressed.str();
     }
 
   } // namespace server

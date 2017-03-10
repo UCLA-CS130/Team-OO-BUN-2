@@ -3,7 +3,7 @@ GTEST_DIR=ngnix/googletest/googletest
 GMOCK_DIR=ngnix/googletest/googlemock
 
 #FLAGS
-LDFLAGS=-static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_thread -lboost_system
+LDFLAGS=-static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic -lboost_log_setup -lboost_regex -lboost_log -lboost_iostreams -lz -lboost_thread -lboost_system
 CXXFLAGS=-std=c++0x -Wall -Werror
 
 all: echo_server
