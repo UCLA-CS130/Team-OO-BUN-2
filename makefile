@@ -90,7 +90,7 @@ test: ngnix/config_parser.cc server_monitor.cpp \
 	server.cpp server_test.cpp connection.cpp connection_test.cpp \
 	-isystem ${GTEST_DIR}/include -I${GTEST_DIR} ${GTEST_DIR}/src/gtest-all.cc ${GTEST_DIR}/src/gtest_main.cc \
 	-isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} ${GMOCK_DIR}/src/gmock-all.cc \
-	-std=c++0x -g -Wall -lboost_regex -lboost_system -fprofile-arcs -ftest-coverage -lboost_thread -lpthread -o mytest
+	-std=c++0x -g -Wall -lboost_regex -lboost_system -fprofile-arcs -ftest-coverage -lboost_thread -lboost_iostreams -lz -lpthread -o mytest
 	./mytest
 	gcov -r server.cpp connection.cpp request.cpp response.cpp request_handler_status.cpp request_handler_default.cpp request_handler_static.cpp server_monitor.cpp
 	rm *.gcov *.gcda *.gcno
