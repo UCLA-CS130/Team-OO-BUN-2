@@ -14,6 +14,7 @@ namespace http {
   			
   		private:
   			bool url_decode(const std::string& in, std::string& out);
+  			std::string compress(std::string& data);
 		};
 
 		REGISTER_REQUEST_HANDLER(StaticHandler);

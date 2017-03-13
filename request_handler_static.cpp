@@ -1,6 +1,11 @@
 #include "request_handler_static.h"
 #include <sstream>
 #include <fstream>
+#include "markdown.h"
+#include <boost/regex.hpp>
+#include <boost/iostreams/copy.hpp> 
+#include <boost/iostreams/filter/gzip.hpp> 
+#include <boost/iostreams/filtering_streambuf.hpp> 
 
 namespace http {
   namespace server {
@@ -8,6 +13,7 @@ namespace http {
     RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config) {
 
         mUri_prefix = uri_prefix;
+        mHandlerName = "Static";
 
         std::vector<std::shared_ptr<NginxConfigStatement>> statements =
                                 config.statements_;
@@ -67,7 +73,7 @@ namespace http {
 
         // Types of supported file extensions from mime_types
         std::string extension_type;
-        if(extension == "jpg"){
+        if (extension == "jpg"){
           extension_type = "image/jpeg";
         }
         else if (extension == "gif"){
@@ -80,7 +86,7 @@ namespace http {
           extension_type = "text/html";
         }
         else if (extension == "png") {
-          extension_type == "image/png";
+          extension_type = "image/png";
         }
 
         // Open the file to send back.
@@ -101,10 +107,38 @@ namespace http {
         sstr << is.rdbuf();
         contents = sstr.str();
 
+        // Check for .md extension in uri
+        // This signifies a markdown file, thus we should transparently convert it into html
+        if (extension == "md"){
+          extension_type = "text/html";
+
+          // Create markdown object
+          markdown::Document doc;
+          // Read the content of the .md file into the markdown document object
+          doc.read(contents);
+          
+          // The markdown::write function takes in an ostream
+          std::ostringstream os;
+          // Write the translated html file and out to content string 
+          doc.write(os);
+          contents = os.str();
+        }
+
+        // Compress the output
+        std::string output_contents = contents;
+        for (auto &header: request.headers()) {
+          if (header.first == "Accept-Encoding") { // Check that the browser accepts gzip compression 
+            if (header.second.find("gzip") != std::string::npos) {
+              output_contents = compress(contents);
+              response->AddHeader("Content-Encoding", "gzip");  // Set compression header
+            }
+          }
+        }
+
         //Good response, fill out the response
         response->SetStatus(Response::ResponseCode::OK);
-        response->SetBody(contents);
-        response->AddHeader("Content-Length", std::to_string(contents.length()));
+        response->SetBody(output_contents);
+        response->AddHeader("Content-Length", std::to_string(output_contents.length()));
         response->AddHeader("Content-Type", extension_type);
 
         return RequestHandler::Status::OK;
@@ -147,6 +181,19 @@ namespace http {
         }
       }
       return true;
+    }
+
+    // Compresses the static output and returns that instead
+    std::string StaticHandler::compress(std::string& data)
+    {
+        std::stringstream compressed;
+        std::stringstream decompressed;
+        decompressed << data;
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
+        out.push(boost::iostreams::gzip_compressor());
+        out.push(decompressed);
+        boost::iostreams::copy(out, compressed);
+        return compressed.str();
     }
 
   } // namespace server

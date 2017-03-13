@@ -71,7 +71,7 @@ TEST_F(ServerTest, CorrectInfoTest) {
 	config_parser.Parse("config", &config);
 	http::server::server s("localhost", config); 
 
-	EXPECT_EQ("8080", s.getPortNum());
+	EXPECT_EQ("8001", s.getPortNum());
 	EXPECT_EQ("localhost", s.getAddress());  
 }
 
