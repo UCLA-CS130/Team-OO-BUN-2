@@ -4,10 +4,10 @@
 	<h3>Feature 1: Markdown</h3>
 	<p>Markdown rendering turns a .md file into a .html file that browsers can interpret.</p>
 
-    <p><strong>Implementation:</strong> We chose to use the <strong>Cpp-Markdown</strong> library since it was implmented in C++ and uses Boost.<br> 
+    <p><strong>Implementation:</strong> We chose to use the <i>Cpp-Markdown</i> library since it was implmented in C++ and uses Boost.<br> 
 	In our static handler, we check if the file requested was a .md file. <br>
 	If it is .md, we create a markdown::Document object that will be used to translate the file. <br>
-	We call the markdown library functions, <strong>doc.read(...)</strong> and <strong>doc.write(...)</strong> that read the contents of the .md file and writes it in html format with tags. <br>
+	We call the markdown library functions, <i>doc.read(...)</i> and <i>doc.write(...)</i> that read the contents of the .md file and writes it in html format with tags. <br>
 	The translated version of the content is sent to the client and its content type is set to html.
 	</p>
 
@@ -17,8 +17,8 @@
 
 	<h3>Feature 2: HTTP Compression</h3>
 	<p>HTTP compression compresses files from the webserver in formats that browsers can uncompress so less data is sent through the internet</p>
-	<p><strong>Implementation:</strong> We implemented HTTP compression using the <strong>boost/iostreams/filter/gzip.hpp</strong> library to compress files into the gzip format. <br>
-	In our static handler, we implemented a compress function that accepts a string of content and returns its compressed version using the <strong>boost::iostreams::gzip_compressor()</strong> function. <br>
+	<p><strong>Implementation:</strong> We implemented HTTP compression using the <i>boost/iostreams/filter/gzip.hpp</i> library to compress files into the gzip format. <br>
+	In our static handler, we implemented a compress function that accepts a string of content and returns its compressed version using the <i>boost::iostreams::gzip_compressor()</i> function. <br>
 	We check that the request headers from the browser included "Accept-Encoding: gzip" and if it does, we call our compress function and set "Content-Encoding: gzip" before the response is sent. <br> 
 	Otherwise, the regular uncompressed file is sent. <br>
 	<br>
