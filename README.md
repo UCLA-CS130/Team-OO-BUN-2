@@ -77,9 +77,9 @@ make aws
 ```
 You can connect to the server on AWS using the following two URLs in a browser:
 ```
-ec2-54-241-154-77.us-west-1.compute.amazonaws.com:8080/
+ec2-54-241-154-77.us-west-1.compute.amazonaws.com:8001/
 ```
 or 
 ```
-54.241.154.77:8080/
+54.241.154.77:8001/
 ```
