@@ -125,14 +125,21 @@ namespace http {
         }
 
         // Compress the output
-        std::string compressed_output = compress(contents);
+        std::string output_contents = contents;
+        for (auto &header: request.headers()) {
+          if (header.first == "Accept-Encoding") { // Check that the browser accepts gzip compression 
+            if (header.second.find("gzip") != std::string::npos) {
+              output_contents = compress(contents);
+              response->AddHeader("Content-Encoding", "gzip");  // Set compression header
+            }
+          }
+        }
 
         //Good response, fill out the response
         response->SetStatus(Response::ResponseCode::OK);
-        response->SetBody(compressed_output);
-        response->AddHeader("Content-Length", std::to_string(compressed_output.length()));
+        response->SetBody(output_contents);
+        response->AddHeader("Content-Length", std::to_string(output_contents.length()));
         response->AddHeader("Content-Type", extension_type);
-        response->AddHeader("Content-Encoding", "gzip");  // Set compression header
 
         return RequestHandler::Status::OK;
       }

@@ -1,5 +1,5 @@
 # This is a comment
-port 8080;
+port 8001;
 
 path /static StaticHandler {
   root static;

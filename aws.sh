@@ -4,5 +4,5 @@ docker save httpserver | bzip2 | ssh -i "ubuntu.pem" ubuntu@ec2-54-241-154-77.us
 ssh -t -t -i "ubuntu.pem" ubuntu@ec2-54-241-154-77.us-west-1.compute.amazonaws.com << 'EOF'
 	docker stop $(docker ps -a -q)
 	docker rm $(docker ps -a -q)
-	docker run --rm -t -p 8080:8080 httpserver
+	docker run --rm -t -p 8001:8001 httpserver
 EOF

@@ -1,0 +1,35 @@
+<html>
+	<h2>Team 1</h2>
+
+	<h3>Feature 1: Markdown</h3>
+	<p>Markdown rendering turns a .md file into a .html file that browsers can interpret.</p>
+
+    <p><strong>Implementation:</strong> We chose to use the <strong>Cpp-Markdown</strong> library since it was implmented in C++ and uses Boost.<br> 
+	In our static handler, we check if the file requested was a .md file. <br>
+	If it is .md, we create a markdown::Document object that will be used to translate the file. <br>
+	We call the markdown library functions, <strong>doc.read(...)</strong> and <strong>doc.write(...)</strong> that read the contents of the .md file and writes it in html format with tags. <br>
+	The translated version of the content is sent to the client and its content type is set to html.
+	</p>
+
+	<p><strong>URL: http://54.241.154.77:8001/static/testmarkdown.md </strong><br>
+	This is our github readme file. In comparison, the untranslated version of this file is identical to http://54.241.154.77:8001/static/testmarkdown.txt</p>
+
+
+	<h3>Feature 2: HTTP Compression</h3>
+	<p>HTTP compression compresses files from the webserver in formats that browsers can uncompress so less data is sent through the internet</p>
+	<p><strong>Implementation:</strong> We implemented HTTP compression using the <strong>boost/iostreams/filter/gzip.hpp</strong> library to compress files into the gzip format. <br>
+	In our static handler, we implemented a compress function that accepts a string of content and returns its compressed version using the <strong>boost::iostreams::gzip_compressor()</strong> function. <br>
+	We check that the request headers from the browser included "Accept-Encoding: gzip" and if it does, we call our compress function and set "Content-Encoding: gzip" before the response is sent. <br> 
+	Otherwise, the regular uncompressed file is sent. <br>
+	<br>
+	To check that a file was compressed, open your developer options and monitor the network in your browser. (In Chrome, make sure you're not using "Small Request Rows".<br>
+	Go to the following URL: <strong>http://54.241.154.77:8001/static/compressiontest.html</strong> <br>
+	<br>
+	By monitoring the request, you will see that <strong>4.4 KB</strong> were transfered while the file itself is <strong>21.5 KB</strong> due to compression. <br>
+	This file is the same html file as the one here: http://www.boost.org/doc/libs/1_39_0/libs/iostreams/doc/classes/gzip.html <br>
+	<br>
+
+	You could also test this at http://54.241.154.77:8001/static/Google.html which is just the Google website html file. <br>
+	<br>
+	If the browser does not specify that it accepts gzip compression in its headers, the file will be sent uncompressed. </p>
+</html>
